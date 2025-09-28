@@ -1,61 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Payroll Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive payroll management system built with Laravel 12, featuring employee management, attendance tracking, and automated payroll processing.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Core Functionality
+- **Employee Management**: Complete employee lifecycle management with detailed profiles
+- **Department & Position Management**: Organized company structure with role-based access
+- **Attendance Tracking**: Daily attendance recording with overtime calculation
+- **Payroll Processing**: Automated salary calculations with allowances and deductions
+- **Dashboard Analytics**: Real-time insights and reporting
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Technical Features
+- **Authentication**: Laravel Breeze with secure user management
+- **Responsive Design**: Modern UI built with Tailwind CSS
+- **Database Design**: Optimized schema with proper relationships
+- **Code Quality**: PSR-12 compliant with comprehensive documentation
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Installation
 
-## Learning Laravel
+### Prerequisites
+- PHP 8.2 or higher
+- Composer
+- Node.js & NPM
+- MySQL/PostgreSQL/SQLite
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Setup Instructions
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd payroll-system
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-## Laravel Sponsors
+3. **Install Node.js dependencies**
+   ```bash
+   npm install
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. **Environment configuration**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-### Premium Partners
+5. **Database setup**
+   ```bash
+   # Configure your database in .env file
+   php artisan migrate
+   php artisan db:seed
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+6. **Build assets**
+   ```bash
+   npm run build
+   ```
+
+7. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+
+## Default Login Credentials
+
+- **Email**: admin@payroll.com
+- **Password**: password
+
+## Database Schema
+
+### Core Tables
+- `users` - System users and authentication
+- `departments` - Company departments
+- `positions` - Job positions within departments
+- `employees` - Employee information and profiles
+- `salary_structures` - Employee salary configurations
+- `payroll_periods` - Payroll processing periods
+- `payroll_records` - Individual payroll calculations
+- `attendance_records` - Daily attendance tracking
+- `allowances` - Salary allowances
+- `deductions` - Salary deductions
+
+### Relationships
+- Employees belong to Departments and Positions
+- Payroll Records are linked to Employees and Payroll Periods
+- Attendance Records track Employee daily attendance
+- Allowances and Deductions are associated with Payroll Records
+
+## Usage
+
+### Employee Management
+1. Navigate to **Employees** section
+2. Add new employees with complete information
+3. Assign departments and positions
+4. Set salary structures and benefits
+
+### Payroll Processing
+1. Create payroll periods with start/end dates
+2. System automatically calculates based on attendance
+3. Review and approve payroll records
+4. Generate payroll reports
+
+### Attendance Tracking
+1. Record daily attendance for employees
+2. Track check-in/check-out times
+3. Calculate overtime hours automatically
+4. Generate attendance reports
+
+## API Endpoints
+
+### Authentication
+- `POST /login` - User authentication
+- `POST /logout` - User logout
+- `POST /register` - User registration
+
+### Employee Management
+- `GET /employees` - List all employees
+- `POST /employees` - Create new employee
+- `GET /employees/{id}` - Get employee details
+- `PUT /employees/{id}` - Update employee
+- `DELETE /employees/{id}` - Terminate employee
+
+### Payroll Management
+- `GET /payrolls` - List payroll periods
+- `POST /payrolls` - Create payroll period
+- `POST /payrolls/{id}/process` - Process payroll
+- `POST /payrolls/{id}/approve` - Approve payroll
+
+## Development
+
+### Code Standards
+- Follow PSR-12 coding standards
+- Use meaningful variable and function names
+- Write comprehensive PHPDoc comments
+- Implement proper error handling
+
+### Testing
+```bash
+# Run tests
+php artisan test
+
+# Run with coverage
+php artisan test --coverage
+```
+
+### Code Quality
+```bash
+# Run Laravel Pint for code formatting
+./vendor/bin/pint
+
+# Run static analysis
+./vendor/bin/phpstan analyse
+```
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Code of Conduct
+## Security
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- All user inputs are validated and sanitized
+- CSRF protection enabled on all forms
+- SQL injection prevention through Eloquent ORM
+- XSS protection with proper output escaping
+- Secure authentication with Laravel Breeze
 
-## Security Vulnerabilities
+## Performance
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Database queries optimized with eager loading
+- Proper indexing on frequently queried columns
+- Caching implemented for static data
+- Pagination for large datasets
+- Image optimization for file uploads
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For support and questions, please contact the development team or create an issue in the repository.
+
+## Changelog
+
+### Version 1.0.0
+- Initial release
+- Employee management system
+- Payroll processing
+- Attendance tracking
+- Dashboard analytics
+- User authentication
