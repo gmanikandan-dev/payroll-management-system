@@ -15,18 +15,30 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
-                        {{ __('Employees') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
-                        {{ __('Departments') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('payrolls.index')" :active="request()->routeIs('payrolls.*')">
-                        {{ __('Payroll') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')">
-                        {{ __('Attendance') }}
-                    </x-nav-link>
+                    
+                    @if(auth()->user()->hasAnyRole(['admin', 'hr']))
+                        <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
+                            {{ __('Employees') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
+                            {{ __('Departments') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('payrolls.index')" :active="request()->routeIs('payrolls.*')">
+                            {{ __('Payroll') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')">
+                            {{ __('Attendance') }}
+                        </x-nav-link>
+                    @endif
+                    
+                    @if(auth()->user()->hasRole('employee'))
+                        <x-nav-link :href="route('my.profile')" :active="request()->routeIs('my.*')">
+                            {{ __('My Profile') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('my.attendance')" :active="request()->routeIs('my.attendance')">
+                            {{ __('My Attendance') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -82,18 +94,30 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
-                {{ __('Employees') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
-                {{ __('Departments') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('payrolls.index')" :active="request()->routeIs('payrolls.*')">
-                {{ __('Payroll') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')">
-                {{ __('Attendance') }}
-            </x-responsive-nav-link>
+            
+            @if(auth()->user()->hasAnyRole(['admin', 'hr']))
+                <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
+                    {{ __('Employees') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('departments.index')" :active="request()->routeIs('departments.*')">
+                    {{ __('Departments') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('payrolls.index')" :active="request()->routeIs('payrolls.*')">
+                    {{ __('Payroll') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('attendance.index')" :active="request()->routeIs('attendance.*')">
+                    {{ __('Attendance') }}
+                </x-responsive-nav-link>
+            @endif
+            
+            @if(auth()->user()->hasRole('employee'))
+                <x-responsive-nav-link :href="route('my.profile')" :active="request()->routeIs('my.*')">
+                    {{ __('My Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('my.attendance')" :active="request()->routeIs('my.attendance')">
+                    {{ __('My Attendance') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

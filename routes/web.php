@@ -13,7 +13,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'permission:dashboard.view'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -22,21 +22,35 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Employee management routes
-    Route::resource('employees', EmployeeController::class);
+    // Employee management routes - HR and Admin only
+    Route::middleware(['role:admin,hr'])->group(function () {
+        Route::resource('employees', EmployeeController::class);
+    });
     
-    // Department management routes
-    Route::resource('departments', DepartmentController::class);
+    // Department management routes - HR and Admin only
+    Route::middleware(['role:admin,hr'])->group(function () {
+        Route::resource('departments', DepartmentController::class);
+    });
     
-    // Payroll management routes
-    Route::resource('payrolls', PayrollController::class);
-    Route::post('/payrolls/{payroll}/approve', [PayrollController::class, 'approve'])->name('payrolls.approve');
-    Route::post('/payrolls/{payroll}/process', [PayrollController::class, 'process'])->name('payrolls.process');
+    // Payroll management routes - HR and Admin only
+    Route::middleware(['role:admin,hr'])->group(function () {
+        Route::resource('payrolls', PayrollController::class);
+        Route::post('/payrolls/{payroll}/approve', [PayrollController::class, 'approve'])->name('payrolls.approve');
+        Route::post('/payrolls/{payroll}/process', [PayrollController::class, 'process'])->name('payrolls.process');
+    });
     
     // Attendance management routes
-    Route::resource('attendance', AttendanceController::class);
-    Route::get('/attendance/bulk-import', [AttendanceController::class, 'bulkImport'])->name('attendance.bulk-import');
-    Route::post('/attendance/bulk-import', [AttendanceController::class, 'processBulkImport'])->name('attendance.process-bulk-import');
+    Route::middleware(['role:admin,hr'])->group(function () {
+        Route::resource('attendance', AttendanceController::class);
+        Route::get('/attendance/bulk-import', [AttendanceController::class, 'bulkImport'])->name('attendance.bulk-import');
+        Route::post('/attendance/bulk-import', [AttendanceController::class, 'processBulkImport'])->name('attendance.process-bulk-import');
+    });
+
+    // Employee self-service routes
+    Route::middleware(['role:employee'])->group(function () {
+        Route::get('/my-profile', [EmployeeController::class, 'show'])->name('my.profile');
+        Route::get('/my-attendance', [AttendanceController::class, 'index'])->name('my.attendance');
+    });
 });
 
 require __DIR__.'/auth.php';
