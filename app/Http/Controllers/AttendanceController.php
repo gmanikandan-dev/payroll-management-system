@@ -258,6 +258,9 @@ class AttendanceController extends Controller
 
         $attendanceRecords = $query->paginate(20);
 
-        return view('attendance.index', compact('attendanceRecords', 'employee'));
+        // For employee self-service, we don't need the employees list for filtering
+        $employees = collect();
+
+        return view('attendance.index', compact('attendanceRecords', 'employees', 'employee'));
     }
 }
