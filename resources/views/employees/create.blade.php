@@ -223,6 +223,21 @@
                             </div>
                         </div>
 
+                        <!-- User Account Creation -->
+                        <div class="border-b border-gray-200 pb-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">User Account</h3>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="create_user_account" id="create_user_account" value="1" {{ old('create_user_account') ? 'checked' : '' }}
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="create_user_account" class="ml-2 block text-sm text-gray-900">
+                                    Create user account for this employee
+                                </label>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">
+                                If checked, a user account will be created with the employee's email and a default password (password123).
+                            </p>
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="flex justify-end space-x-3">
                             <a href="{{ route('employees.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">

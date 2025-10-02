@@ -123,9 +123,20 @@ class PayrollController extends Controller
                 ->with('error', 'Only draft payroll periods can be processed.');
         }
 
-        DB::transaction(function () use ($payroll) {
-            // Get all active employees
-            $employees = Employee::active()->get();
+        // Check if payroll period has valid dates
+        if ($payroll->start_date >= $payroll->end_date) {
+            return redirect()->route('payrolls.show', $payroll)
+                ->with('error', 'Payroll period must have valid start and end dates.');
+        }
+
+        try {
+            DB::transaction(function () use ($payroll) {
+                // Get all active employees
+                $employees = Employee::active()->get();
+
+                if ($employees->isEmpty()) {
+                    throw new \Exception('No active employees found to process payroll.');
+                }
 
             foreach ($employees as $employee) {
                 // Calculate attendance for the period
@@ -174,12 +185,16 @@ class PayrollController extends Controller
                 ]);
             }
 
-            // Update payroll period status
-            $payroll->update(['status' => 'processing']);
-        });
+                // Update payroll period status
+                $payroll->update(['status' => 'processing']);
+            });
 
-        return redirect()->route('payrolls.show', $payroll)
-            ->with('success', 'Payroll processed successfully.');
+            return redirect()->route('payrolls.show', $payroll)
+                ->with('success', 'Payroll processed successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('payrolls.show', $payroll)
+                ->with('error', 'Failed to process payroll: ' . $e->getMessage());
+        }
     }
 
     /**

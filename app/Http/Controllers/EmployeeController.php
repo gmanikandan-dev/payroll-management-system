@@ -80,8 +80,25 @@ class EmployeeController extends Controller
         ]);
 
         // Generate unique employee ID
-        $validated['employee_id'] = 'EMP' . strtoupper(Str::random(6));
+        $validated['employee_id'] = $this->generateEmployeeId();
         $validated['employment_status'] = 'active';
+
+        // Create user account if requested
+        if ($request->has('create_user_account') && $request->create_user_account) {
+            $user = \App\Models\User::create([
+                'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+                'email' => $validated['email'],
+                'password' => bcrypt('password123'), // Default password
+            ]);
+
+            // Assign employee role
+            $employeeRole = \App\Models\Role::where('slug', 'employee')->first();
+            if ($employeeRole) {
+                $user->assignRole($employeeRole);
+            }
+
+            $validated['user_id'] = $user->id;
+        }
 
         Employee::create($validated);
 
@@ -168,5 +185,17 @@ class EmployeeController extends Controller
         $employee->load(['department', 'position', 'salaryStructures', 'payrollRecords.payrollPeriod']);
 
         return view('employees.show', compact('employee'));
+    }
+
+    /**
+     * Generate a unique employee ID
+     */
+    private function generateEmployeeId(): string
+    {
+        do {
+            $employeeId = 'EMP' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+        } while (Employee::where('employee_id', $employeeId)->exists());
+
+        return $employeeId;
     }
 }
