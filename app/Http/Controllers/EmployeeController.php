@@ -152,4 +152,21 @@ class EmployeeController extends Controller
         return redirect()->route('employees.index')
             ->with('success', 'Employee terminated successfully.');
     }
+
+    /**
+     * Show the employee's own profile (self-service)
+     */
+    public function myProfile()
+    {
+        $employee = auth()->user()->employee;
+        
+        if (!$employee) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No employee record found for your account.');
+        }
+
+        $employee->load(['department', 'position', 'salaryStructures', 'payrollRecords.payrollPeriod']);
+
+        return view('employees.show', compact('employee'));
+    }
 }

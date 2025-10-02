@@ -48,8 +48,8 @@ Route::middleware('auth')->group(function () {
 
     // Employee self-service routes
     Route::middleware(['role:employee'])->group(function () {
-        Route::get('/my-profile', [EmployeeController::class, 'show'])->name('my.profile');
-        Route::get('/my-attendance', [AttendanceController::class, 'index'])->name('my.attendance');
+        Route::get('/my-profile', [EmployeeController::class, 'myProfile'])->name('my.profile');
+        Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('my.attendance');
     });
 });
 

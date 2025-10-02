@@ -228,4 +228,36 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.index')
             ->with('success', "Bulk import completed. {$imported} records imported, {$skipped} skipped.");
     }
+
+    /**
+     * Show the employee's own attendance records (self-service)
+     */
+    public function myAttendance(Request $request)
+    {
+        $employee = auth()->user()->employee;
+        
+        if (!$employee) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No employee record found for your account.');
+        }
+
+        $query = $employee->attendanceRecords()->orderBy('date', 'desc');
+
+        // Apply filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('date', '<=', $request->date_to);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $attendanceRecords = $query->paginate(20);
+
+        return view('attendance.index', compact('attendanceRecords', 'employee'));
+    }
 }

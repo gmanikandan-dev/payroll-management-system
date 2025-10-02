@@ -3,26 +3,38 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h2 class="font-bold text-2xl text-gray-900 leading-tight">
-                    {{ __('Attendance Management') }}
+                    @if(isset($employee))
+                        {{ __('My Attendance Records') }}
+                    @else
+                        {{ __('Attendance Management') }}
+                    @endif
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">Track and manage employee attendance records</p>
+                <p class="text-sm text-gray-600 mt-1">
+                    @if(isset($employee))
+                        View your personal attendance history
+                    @else
+                        Track and manage employee attendance records
+                    @endif
+                </p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-2">
-                <a href="{{ route('attendance.bulk-import') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors duration-200">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                    </svg>
-                    Bulk Import
-                </a>
-                <a href="{{ route('attendance.create') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Add Record
-                </a>
-            </div>
+            @if(!isset($employee) && auth()->user()->hasAnyRole(['admin', 'hr']))
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <a href="{{ route('attendance.bulk-import') }}" 
+                       class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                        Bulk Import
+                    </a>
+                    <a href="{{ route('attendance.create') }}" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Add Record
+                    </a>
+                </div>
+            @endif
         </div>
     </x-slot>
 
@@ -62,18 +74,20 @@
                             <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" 
                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors duration-200">
                         </div>
-                        <div>
-                            <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2">Employee</label>
-                            <select name="employee_id" id="employee_id" 
-                                    class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors duration-200">
-                                <option value="">All Employees</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
-                                        {{ $employee->full_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @if(!isset($employee))
+                            <div>
+                                <label for="employee_id" class="block text-sm font-medium text-gray-700 mb-2">Employee</label>
+                                <select name="employee_id" id="employee_id" 
+                                        class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm transition-colors duration-200">
+                                    <option value="">All Employees</option>
+                                    @foreach($employees as $employee)
+                                        <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
+                                            {{ $employee->full_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                             <select name="status" id="status" 
@@ -117,7 +131,9 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee</th>
+                                    @if(!isset($employee))
+                                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Employee</th>
+                                    @endif
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check In</th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check Out</th>
@@ -129,21 +145,23 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($attendanceRecords as $record)
                                     <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
-                                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                                                        <span class="text-sm font-medium text-white">
-                                                            {{ substr($record->employee->first_name, 0, 1) }}{{ substr($record->employee->last_name, 0, 1) }}
-                                                        </span>
+                                        @if(!isset($employee))
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                                            <span class="text-sm font-medium text-white">
+                                                                {{ substr($record->employee->first_name, 0, 1) }}{{ substr($record->employee->last_name, 0, 1) }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-semibold text-gray-900">{{ $record->employee->full_name }}</div>
+                                                        <div class="text-sm text-gray-500">{{ $record->employee->employee_id }}</div>
                                                     </div>
                                                 </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-semibold text-gray-900">{{ $record->employee->full_name }}</div>
-                                                    <div class="text-sm text-gray-500">{{ $record->employee->employee_id }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
+                                            </td>
+                                        @endif
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">{{ $record->date->format('M d, Y') }}</div>
                                             <div class="text-sm text-gray-500">{{ $record->date->format('l') }}</div>
