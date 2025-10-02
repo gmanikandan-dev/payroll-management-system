@@ -64,4 +64,42 @@ class DashboardController extends Controller
             'todayAttendance'
         ));
     }
+
+    /**
+     * Get system health information
+     */
+    public function health()
+    {
+        $health = [
+            'database' => $this->checkDatabaseConnection(),
+            'employees_without_users' => Employee::whereNull('user_id')->count(),
+            'users_without_employees' => \App\Models\User::whereDoesntHave('employee')->count(),
+            'departments_without_positions' => Department::whereDoesntHave('positions')->count(),
+            'recent_errors' => $this->getRecentErrors(),
+        ];
+
+        return response()->json($health);
+    }
+
+    /**
+     * Check database connection
+     */
+    private function checkDatabaseConnection(): bool
+    {
+        try {
+            \DB::connection()->getPdo();
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get recent system errors (placeholder)
+     */
+    private function getRecentErrors(): int
+    {
+        // This could be expanded to check log files or error tracking
+        return 0;
+    }
 }

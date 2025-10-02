@@ -16,6 +16,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'permission:dashboard.view'])
     ->name('dashboard');
 
+Route::get('/health', [DashboardController::class, 'health'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('health');
+
 Route::middleware('auth')->group(function () {
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
