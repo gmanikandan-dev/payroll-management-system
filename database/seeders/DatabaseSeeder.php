@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,23 +14,90 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create users first
+        $this->createUsers();
 
-        // Create employee record for employee user
-        $employeeUser = User::where('email', 'employee@payroll.com')->first();
-        if ($employeeUser && !$employeeUser->employee) {
-            \App\Models\Employee::create([
-                'employee_id' => 'EMP003',
-                'first_name' => 'John',
-                'last_name' => 'Employee',
+        // Run seeders in correct order
+        $this->call([
+            DepartmentSeeder::class,
+            PositionSeeder::class,
+            RoleSeeder::class,
+            PermissionSeeder::class,
+            RolePermissionSeeder::class,
+            EmployeeRecordSeeder::class,
+        ]);
+
+        // Assign roles to users after roles are created
+        $this->assignRolesToUsers();
+    }
+
+    /**
+     * Create default users for the system
+     */
+    private function createUsers(): void
+    {
+        // Create Admin User
+        User::firstOrCreate(
+            ['email' => 'admin@payroll.com'],
+            [
+                'name' => 'Admin User',
+                'email' => 'admin@payroll.com',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Create HR User
+        User::firstOrCreate(
+            ['email' => 'hr@payroll.com'],
+            [
+                'name' => 'HR Manager',
+                'email' => 'hr@payroll.com',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Create Employee User
+        User::firstOrCreate(
+            ['email' => 'employee@payroll.com'],
+            [
+                'name' => 'John Employee',
                 'email' => 'employee@payroll.com',
-                'phone' => '+1234567892',
-                'hire_date' => now()->subMonths(3),
-                'position_id' => $position->id,
-                'department_id' => $department->id,
-                'user_id' => $employeeUser->id,
-                'employment_status' => 'active',
-                'basic_salary' => 50000.00,
-            ]);
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+    }
+
+    /**
+     * Assign roles to users
+     */
+    private function assignRolesToUsers(): void
+    {
+        $adminUser = User::where('email', 'admin@payroll.com')->first();
+        $hrUser = User::where('email', 'hr@payroll.com')->first();
+        $employeeUser = User::where('email', 'employee@payroll.com')->first();
+
+        if ($adminUser) {
+            $adminRole = Role::where('slug', 'admin')->first();
+            if ($adminRole && ! $adminUser->roles()->where('role_id', $adminRole->id)->exists()) {
+                $adminUser->roles()->attach($adminRole->id);
+            }
+        }
+
+        if ($hrUser) {
+            $hrRole = Role::where('slug', 'hr')->first();
+            if ($hrRole && ! $hrUser->roles()->where('role_id', $hrRole->id)->exists()) {
+                $hrUser->roles()->attach($hrRole->id);
+            }
+        }
+
+        if ($employeeUser) {
+            $employeeRole = Role::where('slug', 'employee')->first();
+            if ($employeeRole && ! $employeeUser->roles()->where('role_id', $employeeRole->id)->exists()) {
+                $employeeUser->roles()->attach($employeeRole->id);
+            }
         }
     }
 }
