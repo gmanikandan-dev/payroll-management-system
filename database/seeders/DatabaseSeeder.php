@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RolePermissionSeeder::class,
             EmployeeRecordSeeder::class,
+            AttendanceSeeder::class,
         ]);
 
         // Assign roles to users after roles are created
