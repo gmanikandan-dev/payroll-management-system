@@ -17,21 +17,36 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
         $stats = [
             'total_employees' => Employee::active()->count(),
             'total_departments' => Department::active()->count(),
             'current_payroll_period' => PayrollPeriod::where('status', 'processing')->first(),
             'pending_payrolls' => PayrollRecord::where('status', 'draft')->count(),
             'approved_payrolls' => PayrollRecord::where('status', 'approved')->count(),
-            'total_payroll_amount' => PayrollRecord::where('status', 'approved')
-                ->sum('net_salary'),
+            'total_payroll_amount' => PayrollRecord::where('status', 'approved')->sum('net_salary'),
         ];
 
-        // Recent payroll periods
-        $recentPayrollPeriods = PayrollPeriod::with('creator')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
+        // Recent payroll periods (admin/hr see global, employee sees none or own context)
+        if ($user && $user->hasAnyRole(['admin', 'hr'])) {
+            $recentPayrollPeriods = PayrollPeriod::with('creator')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+        } else {
+            $recentPayrollPeriods = collect();
+        }
+
+        // Employee-specific payroll history (for employee role)
+        $myPayrollHistory = collect();
+        if ($user && $user->hasRole('employee') && $user->employee) {
+            $myPayrollHistory = PayrollRecord::with('payrollPeriod')
+                ->where('employee_id', $user->employee->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+        }
 
         // Department-wise employee count
         $departmentStats = Department::withCount('employees')
@@ -61,7 +76,8 @@ class DashboardController extends Controller
             'recentPayrollPeriods',
             'departmentStats',
             'monthlyTrend',
-            'todayAttendance'
+            'todayAttendance',
+            'myPayrollHistory'
         ));
     }
 
