@@ -4,8 +4,9 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Edit Attendance') }} - {{ $attendance->employee->first_name }} {{ $attendance->employee->last_name }}
             </h2>
-            <a href="{{ route('attendance.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                Back to Attendance
+            @php($isEmployee = auth()->user()->hasRole('employee'))
+            <a href="{{ $isEmployee ? route('my.attendance') : route('attendance.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                {{ $isEmployee ? 'Back to My Attendance' : 'Back to Attendance' }}
             </a>
         </div>
     </x-slot>
@@ -87,7 +88,7 @@
                                     <option value="absent" {{ old('status', $attendance->status) == 'absent' ? 'selected' : '' }}>Absent</option>
                                     <option value="late" {{ old('status', $attendance->status) == 'late' ? 'selected' : '' }}>Late</option>
                                     <option value="half_day" {{ old('status', $attendance->status) == 'half_day' ? 'selected' : '' }}>Half Day</option>
-                                    <option value="leave" {{ old('status', $attendance->status) == 'leave' ? 'selected' : '' }}>Leave</option>
+                                    <option value="on_leave" {{ old('status', $attendance->status) == 'on_leave' ? 'selected' : '' }}>On Leave</option>
                                 </select>
                                 @error('status')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -105,7 +106,7 @@
                         </div>
 
                         <div class="flex justify-end space-x-3">
-                            <a href="{{ route('attendance.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                            <a href="{{ $isEmployee ? route('my.attendance') : route('attendance.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
                                 Cancel
                             </a>
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
