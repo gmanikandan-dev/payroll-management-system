@@ -56,7 +56,8 @@
                     </div>
                 </div>
 
-                <!-- Pending Payrolls -->
+                @anyrole('admin','hr')
+                <!-- Pending Payrolls (admin/hr only) -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex items-center">
@@ -75,7 +76,7 @@
                     </div>
                 </div>
 
-                <!-- Total Payroll Amount -->
+                <!-- Total Payroll Amount (admin/hr only) -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex items-center">
@@ -93,6 +94,7 @@
                         </div>
                     </div>
                 </div>
+                @endanyrole
             </div>
 
             <!-- Quick Actions -->
@@ -161,6 +163,18 @@
                                 </div>
                             </a>
 
+                            <a href="{{ route('attendance.create') }}" class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+                                <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center mr-4">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Mark Attendance</p>
+                                    <p class="text-sm text-gray-500">Record your attendance</p>
+                                </div>
+                            </a>
+
                             <a href="{{ route('profile.edit') }}" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
                                 <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center mr-4">
                                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +192,8 @@
                 </div>
             </div>
 
-            <!-- Recent Payroll Periods -->
+            @anyrole('admin','hr')
+            <!-- Recent Payroll Periods (admin/hr only) -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Payroll Periods</h3>
@@ -221,6 +236,7 @@
                     @endif
                 </div>
             </div>
+            @endanyrole
         </div>
     </div>
 </x-app-layout>
