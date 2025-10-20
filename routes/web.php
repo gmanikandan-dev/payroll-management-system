@@ -43,9 +43,22 @@ Route::middleware('auth')->group(function () {
         Route::post('/payrolls/{payroll}/process', [PayrollController::class, 'process'])->name('payrolls.process');
     });
     
-    // Attendance management routes
+    // Attendance routes
+    // Employees (with permissions) can create/edit their own attendance
+    Route::middleware(['permission:attendance.create'])->group(function () {
+        Route::get('/attendance/create', [AttendanceController::class, 'create'])->name('attendance.create');
+        Route::post('/attendance', [AttendanceController::class, 'store'])->name('attendance.store');
+    });
+    Route::middleware(['permission:attendance.edit'])->group(function () {
+        Route::get('/attendance/{attendance}/edit', [AttendanceController::class, 'edit'])->name('attendance.edit')->whereNumber('attendance');
+        Route::match(['put', 'patch'], '/attendance/{attendance}', [AttendanceController::class, 'update'])->name('attendance.update')->whereNumber('attendance');
+    });
+
+    // Admin/HR: index/show and bulk import
     Route::middleware(['role:admin,hr'])->group(function () {
-        Route::resource('attendance', AttendanceController::class);
+        Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('/attendance/{attendance}', [AttendanceController::class, 'show'])->name('attendance.show')->whereNumber('attendance');
+        Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy'])->name('attendance.destroy')->whereNumber('attendance');
         Route::get('/attendance/bulk-import', [AttendanceController::class, 'bulkImport'])->name('attendance.bulk-import');
         Route::post('/attendance/bulk-import', [AttendanceController::class, 'processBulkImport'])->name('attendance.process-bulk-import');
     });
@@ -54,6 +67,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:employee'])->group(function () {
         Route::get('/my-profile', [EmployeeController::class, 'myProfile'])->name('my.profile');
         Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('my.attendance');
+        Route::get('/my-employee/edit', [EmployeeController::class, 'editSelf'])->name('my.employee.edit');
+        Route::match(['put','patch'], '/my-employee', [EmployeeController::class, 'updateSelf'])->name('my.employee.update');
     });
 });
 
