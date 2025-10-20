@@ -4,9 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Payroll Periods') }}
             </h2>
+            @perm('payrolls.create')
             <a href="{{ route('payrolls.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Create Payroll Period
             </a>
+            @endperm
         </div>
     </x-slot>
 
@@ -74,31 +76,41 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div class="flex space-x-2">
+                                                    @perm('payrolls.view')
                                                     <a href="{{ route('payrolls.show', $period) }}" 
                                                        class="text-indigo-600 hover:text-indigo-900">View</a>
+                                                    @endperm
                                                     @if($period->status === 'draft')
+                                                        @perm('payrolls.edit')
                                                         <a href="{{ route('payrolls.edit', $period) }}" 
                                                            class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                                        @endperm
+                                                        @perm('payrolls.process')
                                                         <form method="POST" action="{{ route('payrolls.process', $period) }}" 
                                                               class="inline" onsubmit="return confirm('Are you sure you want to process this payroll?')">
                                                             @csrf
                                                             <button type="submit" class="text-green-600 hover:text-green-900">Process</button>
                                                         </form>
+                                                        @endperm
                                                     @endif
                                                     @if($period->status === 'processing')
+                                                        @perm('payrolls.approve')
                                                         <form method="POST" action="{{ route('payrolls.approve', $period) }}" 
                                                               class="inline" onsubmit="return confirm('Are you sure you want to approve this payroll?')">
                                                             @csrf
                                                             <button type="submit" class="text-green-600 hover:text-green-900">Approve</button>
                                                         </form>
+                                                        @endperm
                                                     @endif
                                                     @if($period->status !== 'completed')
+                                                        @perm('payrolls.delete')
                                                         <form method="POST" action="{{ route('payrolls.destroy', $period) }}" 
                                                               class="inline" onsubmit="return confirm('Are you sure you want to delete this payroll period?')">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
                                                         </form>
+                                                        @endperm
                                                     @endif
                                                 </div>
                                             </td>

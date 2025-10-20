@@ -32,7 +32,7 @@
                     @endif
                     
                     @if(auth()->user()->hasRole('employee'))
-                        <x-nav-link :href="route('my.profile')" :active="request()->routeIs('my.*')">
+                        <x-nav-link :href="route('my.profile')" :active="request()->routeIs('my.profile')">
                             {{ __('My Profile') }}
                         </x-nav-link>
                         <x-nav-link :href="route('my.attendance')" :active="request()->routeIs('my.attendance')">
@@ -111,7 +111,7 @@
             @endif
             
             @if(auth()->user()->hasRole('employee'))
-                <x-responsive-nav-link :href="route('my.profile')" :active="request()->routeIs('my.*')">
+                <x-responsive-nav-link :href="route('my.profile')" :active="request()->routeIs('my.profile')">
                     {{ __('My Profile') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('my.attendance')" :active="request()->routeIs('my.attendance')">

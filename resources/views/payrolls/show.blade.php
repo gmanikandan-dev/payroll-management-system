@@ -5,12 +5,16 @@
                 {{ __('Payroll Period Details') }} - {{ $payroll->name }}
             </h2>
             <div class="flex space-x-2">
+                @perm('payrolls.edit')
                 <a href="{{ route('payrolls.edit', $payroll) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Edit Payroll
                 </a>
+                @endperm
+                @perm('payrolls.view')
                 <a href="{{ route('payrolls.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Back to Payrolls
                 </a>
+                @endperm
             </div>
         </div>
     </x-slot>
@@ -127,27 +131,33 @@
                             <h4 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h4>
                             <div class="space-y-3">
                                 @if($payroll->status === 'draft')
+                                    @perm('payrolls.process')
                                     <form method="POST" action="{{ route('payrolls.process', $payroll) }}" class="inline-block w-full">
                                         @csrf
                                         <button type="submit" class="block w-full text-center bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                                             Process Payroll
                                         </button>
                                     </form>
+                                    @endperm
                                 @endif
                                 
                                 @if($payroll->status === 'processing')
+                                    @perm('payrolls.approve')
                                     <form method="POST" action="{{ route('payrolls.approve', $payroll) }}" class="inline-block w-full">
                                         @csrf
                                         <button type="submit" class="block w-full text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                             Approve Payroll
                                         </button>
                                     </form>
+                                    @endperm
                                 @endif
                                 
+                                @perm('attendance.view')
                                 <a href="{{ route('attendance.index', ['payroll_period_id' => $payroll->id]) }}" 
                                    class="block w-full text-center bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
                                     View Attendance
                                 </a>
+                                @endperm
                             </div>
                         </div>
                     </div>
