@@ -5,12 +5,23 @@
                 {{ __('Employee Details') }} - {{ $employee->first_name }} {{ $employee->last_name }}
             </h2>
             <div class="flex space-x-2">
-                <a href="{{ route('employees.edit', $employee) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Edit Employee
-                </a>
-                <a href="{{ route('employees.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                    Back to Employees
-                </a>
+                @anyrole('admin','hr')
+                    @perm('employees.edit')
+                    <a href="{{ route('employees.edit', $employee) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Edit Employee
+                    </a>
+                    @endperm
+                    @perm('employees.view')
+                    <a href="{{ route('employees.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        Back to Employees
+                    </a>
+                    @endperm
+                @endanyrole
+                @if(auth()->check() && auth()->user()->employee && auth()->user()->employee->id === $employee->id)
+                    <a href="{{ route('my.employee.edit') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Edit My Profile
+                    </a>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -167,20 +178,38 @@
                         <div class="p-6">
                             <h4 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h4>
                             <div class="space-y-3">
-                                <a href="{{ route('attendance.index', ['employee_id' => $employee->id]) }}" 
-                                   class="block w-full text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    View Attendance
-                                </a>
-                                <a href="{{ route('payrolls.index', ['employee_id' => $employee->id]) }}" 
-                                   class="block w-full text-center bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                    View Payroll History
-                                </a>
-                                @if($employee->user)
-                                    <a href="#" 
-                                       class="block w-full text-center bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                                        View User Account
+                                @anyrole('admin','hr')
+                                    @perm('attendance.view')
+                                    <a href="{{ route('attendance.index', ['employee_id' => $employee->id]) }}" 
+                                       class="block w-full text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        View Attendance
                                     </a>
-                                @endif
+                                    @endperm
+                                    @perm('payrolls.view')
+                                    <a href="{{ route('payrolls.index', ['employee_id' => $employee->id]) }}" 
+                                       class="block w-full text-center bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                        View Payroll History
+                                    </a>
+                                    @endperm
+                                    @if($employee->user)
+                                        @perm('users.view')
+                                        <a href="#" 
+                                           class="block w-full text-center bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                                            View User Account
+                                        </a>
+                                        @endperm
+                                    @endif
+                                @endanyrole
+                                @role('employee')
+                                    @if(auth()->check() && auth()->user()->employee && auth()->user()->employee->id === $employee->id)
+                                        @perm('attendance.view')
+                                        <a href="{{ route('my.attendance') }}" 
+                                           class="block w-full text-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                            View My Attendance
+                                        </a>
+                                        @endperm
+                                    @endif
+                                @endrole
                             </div>
                         </div>
                     </div>

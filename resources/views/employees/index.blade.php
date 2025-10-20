@@ -4,9 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Employees') }}
             </h2>
+            @perm('employees.create')
             <a href="{{ route('employees.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Add Employee
             </a>
+            @endperm
         </div>
     </x-slot>
 
@@ -110,10 +112,15 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div class="flex space-x-2">
+                                                    @perm('employees.view')
                                                     <a href="{{ route('employees.show', $employee) }}" 
                                                        class="text-indigo-600 hover:text-indigo-900">View</a>
+                                                    @endperm
+                                                    @perm('employees.edit')
                                                     <a href="{{ route('employees.edit', $employee) }}" 
                                                        class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                                    @endperm
+                                                    @perm('employees.delete')
                                                     @if($employee->employment_status !== 'terminated')
                                                         <form method="POST" action="{{ route('employees.destroy', $employee) }}" 
                                                               class="inline" onsubmit="return confirm('Are you sure you want to terminate this employee?')">
@@ -122,6 +129,7 @@
                                                             <button type="submit" class="text-red-600 hover:text-red-900">Terminate</button>
                                                         </form>
                                                     @endif
+                                                    @endperm
                                                 </div>
                                             </td>
                                         </tr>
