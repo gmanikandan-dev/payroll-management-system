@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
 use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -48,8 +50,15 @@ class AttendanceController extends Controller
      */
     public function create()
     {
-        $employees = Employee::active()->orderBy('first_name')->get();
         $today = Carbon::today();
+
+        // If employee role, restrict to own employee record
+        $currentUser = Auth::id() ? User::with(['roles', 'employee'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists() && $currentUser->employee) {
+            $employees = collect([$currentUser->employee]);
+        } else {
+            $employees = Employee::active()->orderBy('first_name')->get();
+        }
 
         return view('attendance.create', compact('employees', 'today'));
     }
@@ -67,6 +76,14 @@ class AttendanceController extends Controller
             'status' => 'required|in:present,absent,late,half_day,on_leave',
             'notes' => 'nullable|string',
         ]);
+
+        // Ownership enforcement: employees can only create for themselves
+        $currentUser = Auth::id() ? User::with(['roles', 'employee'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists()) {
+            if (!$currentUser->employee || (int)$validated['employee_id'] !== (int)$currentUser->employee->id) {
+                abort(403, 'Unauthorized: you can only create your own attendance.');
+            }
+        }
 
         // Check if attendance record already exists for this employee and date
         $existingRecord = AttendanceRecord::where('employee_id', $validated['employee_id'])
@@ -94,6 +111,13 @@ class AttendanceController extends Controller
 
         AttendanceRecord::create($validated);
 
+        // Redirect based on user role
+        $currentUser = Auth::id() ? User::with(['roles'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists()) {
+            return redirect()->route('my.attendance')
+                ->with('success', 'Attendance record created successfully.');
+        }
+
         return redirect()->route('attendance.index')
             ->with('success', 'Attendance record created successfully.');
     }
@@ -113,8 +137,17 @@ class AttendanceController extends Controller
      */
     public function edit(AttendanceRecord $attendance)
     {
-        $employees = Employee::active()->orderBy('first_name')->get();
-        
+        $currentUser = Auth::id() ? User::with(['roles', 'employee'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists()) {
+            if (!$currentUser->employee || $attendance->employee_id !== $currentUser->employee->id) {
+                abort(403, 'Unauthorized: you can only edit your own attendance.');
+            }
+            // Limit selectable employees to self
+            $employees = collect([$currentUser->employee]);
+        } else {
+            $employees = Employee::active()->orderBy('first_name')->get();
+        }
+
         return view('attendance.edit', compact('attendance', 'employees'));
     }
 
@@ -132,6 +165,14 @@ class AttendanceController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // Ownership enforcement: employees can only update their own record
+        $currentUser = Auth::id() ? User::with(['roles', 'employee'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists()) {
+            if (!$currentUser->employee || $attendance->employee_id !== $currentUser->employee->id || (int)$validated['employee_id'] !== (int)$currentUser->employee->id) {
+                abort(403, 'Unauthorized: you can only update your own attendance.');
+            }
+        }
+
         // Calculate hours worked if check-in and check-out are provided
         if ($validated['check_in'] && $validated['check_out']) {
             $checkIn = Carbon::createFromFormat('H:i', $validated['check_in']);
@@ -147,6 +188,13 @@ class AttendanceController extends Controller
 
         $attendance->update($validated);
 
+        // Redirect based on user role
+        $currentUser = Auth::id() ? User::with(['roles'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists()) {
+            return redirect()->route('my.attendance')
+                ->with('success', 'Attendance record updated successfully.');
+        }
+
         return redirect()->route('attendance.index')
             ->with('success', 'Attendance record updated successfully.');
     }
@@ -157,6 +205,13 @@ class AttendanceController extends Controller
     public function destroy(AttendanceRecord $attendance)
     {
         $attendance->delete();
+
+        // Redirect based on user role
+        $currentUser = Auth::id() ? User::with(['roles'])->find(Auth::id()) : null;
+        if ($currentUser && $currentUser->roles()->where('slug', 'employee')->exists()) {
+            return redirect()->route('my.attendance')
+                ->with('success', 'Attendance record deleted successfully.');
+        }
 
         return redirect()->route('attendance.index')
             ->with('success', 'Attendance record deleted successfully.');
@@ -234,7 +289,7 @@ class AttendanceController extends Controller
      */
     public function myAttendance(Request $request)
     {
-        $employee = auth()->user()->employee;
+        $employee = Auth::user()?->employee;
         
         if (!$employee) {
             return redirect()->route('dashboard')
