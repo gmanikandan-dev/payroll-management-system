@@ -188,6 +188,61 @@ class EmployeeController extends Controller
     }
 
     /**
+     * Edit the authenticated employee's own record
+     */
+    public function editSelf()
+    {
+        $user = auth()->user();
+        $employee = $user->employee;
+
+        if (!$employee) {
+            return redirect()->route('dashboard')->with('error', 'No employee record found.');
+        }
+
+        $departments = Department::active()->get();
+        $positions = Position::active()->get();
+
+        return view('employees.edit', compact('employee', 'departments', 'positions'));
+    }
+
+    /**
+     * Update the authenticated employee's own record
+     */
+    public function updateSelf(Request $request)
+    {
+        $user = auth()->user();
+        $employee = $user->employee;
+
+        if (!$employee) {
+            return redirect()->route('dashboard')->with('error', 'No employee record found.');
+        }
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:employees,email,' . $employee->id,
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string',
+            'emergency_contact' => 'nullable|string|max:255',
+            'emergency_phone' => 'nullable|string|max:20',
+            'hire_date' => 'required|date',
+            'position_id' => 'required|exists:positions,id',
+            'department_id' => 'required|exists:departments,id',
+            'employment_status' => 'required|in:active,inactive,terminated,on_leave',
+            'basic_salary' => 'required|numeric|min:0',
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account' => 'nullable|string|max:255',
+            'tax_id' => 'nullable|string|max:255',
+        ]);
+
+        $employee->update($validated);
+
+        return redirect()->route('my.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    /**
      * Generate a unique employee ID
      */
     private function generateEmployeeId(): string
