@@ -47,6 +47,8 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'employees.view', // Can view own profile
             'attendance.view', // Can view own attendance
+            'attendance.create', // Can create own attendance
+            'attendance.edit', // Can edit own attendance
         ])->pluck('id');
         $employeeRole->permissions()->sync($employeePermissions);
     }
