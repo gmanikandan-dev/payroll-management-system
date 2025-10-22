@@ -234,18 +234,45 @@ class AttendanceController extends Controller
     {
         $validated = $request->validate([
             'date' => 'required|date',
-            'attendance_data' => 'required|array',
-            'attendance_data.*.employee_id' => 'required|exists:employees,id',
-            'attendance_data.*.status' => 'required|in:present,absent,late,half_day,on_leave',
-            'attendance_data.*.check_in' => 'nullable|date_format:H:i',
-            'attendance_data.*.check_out' => 'nullable|date_format:H:i',
-            'attendance_data.*.notes' => 'nullable|string',
+            'attendance_data' => 'required|string',
         ]);
+
+        // Parse JSON data
+        $attendanceData = json_decode($validated['attendance_data'], true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return redirect()->back()
+                ->with('error', 'Invalid JSON format in attendance data.')
+                ->withInput();
+        }
+
+        if (!is_array($attendanceData)) {
+            return redirect()->back()
+                ->with('error', 'Attendance data must be an array.')
+                ->withInput();
+        }
+
+        // Validate each attendance record
+        foreach ($attendanceData as $index => $data) {
+            $validator = \Validator::make($data, [
+                'employee_id' => 'required|exists:employees,id',
+                'status' => 'required|in:present,absent,late,half_day,on_leave',
+                'check_in' => 'nullable|date_format:H:i',
+                'check_out' => 'nullable|date_format:H:i',
+                'notes' => 'nullable|string',
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->with('error', "Validation error in record " . ($index + 1) . ": " . implode(', ', $validator->errors()->all()))
+                    ->withInput();
+            }
+        }
 
         $imported = 0;
         $skipped = 0;
 
-        foreach ($validated['attendance_data'] as $data) {
+        foreach ($attendanceData as $data) {
             // Check if record already exists
             $existing = AttendanceRecord::where('employee_id', $data['employee_id'])
                 ->whereDate('date', $validated['date'])
